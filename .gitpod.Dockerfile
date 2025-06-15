@@ -2,8 +2,8 @@ FROM gitpod/workspace-full
 
 USER root
 
-# Hapus PPA rusak agar apt tidak error
-RUN add-apt-repository -r ppa:ondrej/nginx-mainline || true
+# Hapus PPA yang rusak secara langsung (karena add-apt-repository tidak efektif dalam container)
+RUN rm -f /etc/apt/sources.list.d/ondrej-nginx-mainline-ubuntu-jammy.list || true
 
 # Install dependencies + Google Chrome + Chromedriver
 RUN apt-get update && apt-get install -y \
@@ -30,11 +30,9 @@ RUN apt-get update && apt-get install -y \
     curl -sSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg && \
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
     apt-get update && apt-get install -y google-chrome-stable && \
-    # Install Chromedriver sesuai versi Chrome
     LATEST=$(curl -sSL https://chromedriver.storage.googleapis.com/LATEST_RELEASE) && \
     wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/${LATEST}/chromedriver_linux64.zip && \
     unzip /tmp/chromedriver.zip -d /usr/local/bin/ && \
     chmod +x /usr/local/bin/chromedriver && \
     rm -rf /tmp/chromedriver.zip && \
-    # Bersihkan cache apt
     rm -rf /var/lib/apt/lists/*
